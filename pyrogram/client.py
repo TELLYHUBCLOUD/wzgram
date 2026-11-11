@@ -68,7 +68,7 @@ from pyrogram.utils import ainput
 
 from .connection import Connection, Proxy
 from .connection.proxy import ProxyDict, normalize_proxy
-from .connection.transport import TCP, TCPAbridged
+from .connection.transport import TCP
 from .dispatcher import Dispatcher
 from .file_id import FileId, FileType, ThumbnailSource
 from .mime_types import mime_types
@@ -514,7 +514,7 @@ class Client(Methods):
         fetch_stickers: Optional[bool] = True,
         init_connection_params: Optional[dict] = None,
         connection_factory: Type[Connection] = Connection,
-        protocol_factory: Type[TCP] = TCPAbridged,
+        protocol_factory: Optional[Type[TCP]] = None,
         loop: Optional[asyncio.AbstractEventLoop] = None,
         rate_limits: Optional[dict] = None,
         auto_no_updates: Optional[bool] = True

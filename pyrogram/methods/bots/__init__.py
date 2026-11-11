@@ -16,6 +16,7 @@
 #  You should have received a copy of the GNU Lesser General Public License
 #  along with Pyrogram.  If not, see <http://www.gnu.org/licenses/>.
 
+from .add_bot_username import AddBotUsername
 from .allow_bot_send_message import AllowBotSendMessage
 from .answer_callback_query import AnswerCallbackQuery
 from .answer_chat_join_request_query import AnswerChatJoinRequestQuery
@@ -24,6 +25,7 @@ from .answer_inline_query import AnswerInlineQuery
 from .answer_pre_checkout_query import AnswerPreCheckoutQuery
 from .answer_shipping_query import AnswerShippingQuery
 from .answer_web_app_query import AnswerWebAppQuery
+from .answer_widget_query import AnswerWidgetQuery
 from .can_bot_send_message import CanBotSendMessage
 from .check_bot_username import CheckBotUsername
 from .create_bot import CreateBot
@@ -44,6 +46,8 @@ from .get_managed_bot_access_settings import GetManagedBotAccessSettings
 from .get_managed_bot_token import GetManagedBotToken
 from .get_owned_bots import GetOwnedBots
 from .refund_star_payment import RefundStarPayment
+from .remove_bot_username import RemoveBotUsername
+from .reorder_bot_usernames import ReorderBotUsernames
 from .replace_managed_bot_token import ReplaceManagedBotToken
 from .request_callback_answer import RequestCallbackAnswer
 from .send_chat_join_request_web_app import SendChatJoinRequestWebApp
@@ -58,6 +62,7 @@ from .set_bot_name import SetBotName
 from .set_chat_menu_button import SetChatMenuButton
 from .set_game_score import SetGameScore
 from .set_managed_bot_access_settings import SetManagedBotAccessSettings
+from .toggle_bot_username import ToggleBotUsername
 
 
 class Bots(
@@ -102,6 +107,11 @@ class Bots(
     SetBotName,
     SetChatMenuButton,
     SetGameScore,
-    SetManagedBotAccessSettings
+    SetManagedBotAccessSettings,
+    AnswerWidgetQuery,
+    AddBotUsername,
+    RemoveBotUsername,
+    ReorderBotUsernames,
+    ToggleBotUsername
 ):
     pass

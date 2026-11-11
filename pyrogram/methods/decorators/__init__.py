@@ -47,6 +47,7 @@ from .on_stop import OnStop
 from .on_story import OnStory
 from .on_ton_wallet_state import OnTonWalletState
 from .on_user_status import OnUserStatus
+from .on_widget_query import OnWidgetQuery
 
 
 class Decorators(
@@ -80,6 +81,7 @@ class Decorators(
     OnStop,
     OnStory,
     OnTonWalletState,
-    OnUserStatus
+    OnUserStatus,
+    OnWidgetQuery
 ):
     pass

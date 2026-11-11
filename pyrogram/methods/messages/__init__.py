@@ -37,11 +37,14 @@ from .edit_inline_caption import EditInlineCaption
 from .edit_inline_media import EditInlineMedia
 from .edit_inline_reply_markup import EditInlineReplyMarkup
 from .edit_inline_text import EditInlineText
+from .edit_inline_widget_data import EditInlineWidgetData
 from .edit_message_caption import EditMessageCaption
 from .edit_message_checklist import EditMessageChecklist
 from .edit_message_media import EditMessageMedia
 from .edit_message_reply_markup import EditMessageReplyMarkup
 from .edit_message_text import EditMessageText
+from .edit_message_widget_data import EditMessageWidgetData
+from .edit_widget_data import EditWidgetData
 from .fix_text_with_ai import FixTextWithAI
 from .forward_media_group import ForwardMediaGroup
 from .forward_messages import ForwardMessages
@@ -64,6 +67,7 @@ from .get_stickers import GetStickers
 from .get_user_personal_chat_messages import GetUserPersonalChatMessages
 from .get_web_app_link_url import GetWebAppLinkUrl
 from .get_web_app_url import GetWebAppUrl
+from .get_widget_public_data import GetWidgetPublicData
 from .mark_checklist_tasks_as_done import MarkChecklistTasksAsDone
 from .open_web_app import OpenWebApp
 from .read_chat_history import ReadChatHistory
@@ -98,11 +102,13 @@ from .send_rich_message import SendRichMessage
 from .send_rich_message_draft import SendRichMessageDraft
 from .send_scheduled_messages import SendScheduledMessages
 from .send_screenshot_notification import SendScreenshotNotification
+from .send_shared_widget import SendSharedWidget
 from .send_sticker import SendSticker
 from .send_venue import SendVenue
 from .send_video import SendVideo
 from .send_video_note import SendVideoNote
 from .send_voice import SendVoice
+from .send_widget import SendWidget
 from .set_direct_messages_chat_topic_is_marked_as_unread import SetDirectMessagesChatTopicIsMarkedAsUnread
 from .start_bot import StartBot
 from .stop_poll import StopPoll
@@ -208,6 +214,12 @@ class Messages(
     SummarizeText,
     TranslateText,
     ViewMessages,
-    VotePoll
+    VotePoll,
+    EditInlineWidgetData,
+    EditMessageWidgetData,
+    EditWidgetData,
+    GetWidgetPublicData,
+    SendWidget,
+    SendSharedWidget
 ):
     pass

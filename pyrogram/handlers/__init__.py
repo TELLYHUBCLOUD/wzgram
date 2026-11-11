@@ -48,3 +48,4 @@ from .stop_handler import StopHandler
 from .story_handler import StoryHandler
 from .ton_wallet_state_handler import TonWalletStateHandler
 from .user_status_handler import UserStatusHandler
+from .widget_query_handler import WidgetQueryHandler

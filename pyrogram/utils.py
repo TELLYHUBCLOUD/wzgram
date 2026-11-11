@@ -508,6 +508,7 @@ async def get_reply_to(
         if reply_parameters.message_id:
             message = None
             entities = None
+            quote_rich = None
 
             if reply_parameters.quote:
                 message, entities = (
@@ -519,6 +520,20 @@ async def get_reply_to(
                     )
                 ).values()
 
+            if reply_parameters.quote_rich:
+                quote_rich = [
+                    (
+                        raw.types.TextPlain(text=part)
+                        if isinstance(part, str)
+                        else part
+                    )
+                    for part in (
+                        reply_parameters.quote_rich
+                        if isinstance(reply_parameters.quote_rich, (list, tuple))
+                        else [reply_parameters.quote_rich]
+                    )
+                ]
+
             return raw.types.InputReplyToMessage(
                 reply_to_msg_id=reply_parameters.message_id,
                 top_msg_id=message_thread_id,
@@ -526,6 +541,7 @@ async def get_reply_to(
                 quote_text=message,
                 quote_entities=entities,
                 quote_offset=reply_parameters.quote_position,
+                quote_rich=quote_rich,
                 monoforum_peer_id=await client.resolve_peer(direct_messages_topic_id) if direct_messages_topic_id else None,
                 todo_item_id=reply_parameters.checklist_task_id,
                 poll_option=reply_parameters.poll_option_id.encode() if reply_parameters.poll_option_id is not None else None,

@@ -321,6 +321,10 @@ class Chat(Object):
         gift_count (``int``, *optional*):
             Number of saved to profile gifts for channels without `can_post_messages` administrator right, otherwise, the total number of received gifts.
 
+        wallet_card (:obj:`~pyrogram.types.WalletCard`, *optional*):
+            Card of the user's TON wallet, with balances and NFT stickers.
+            Returned for users when the full chat object is fetched.
+
         bot_verification (:obj:`~pyrogram.types.BotVerification`, *optional*):
             Information about bot verification.
 
@@ -647,6 +651,7 @@ class Chat(Object):
         location: Optional["types.ChatLocation"] = None,
         reactions_limit: Optional[int] = None,
         gift_count: Optional[int] = None,
+        wallet_card: Optional["types.WalletCard"] = None,
         bot_verification: Optional["types.BotVerification"] = None,
         main_profile_tab: Optional["enums.ProfileTab"] = None,
         first_profile_audio: Optional["types.Audio"] = None,
@@ -795,6 +800,7 @@ class Chat(Object):
         self.location = location
         self.reactions_limit = reactions_limit
         self.gift_count = gift_count
+        self.wallet_card = wallet_card
         self.bot_verification = bot_verification
         self.main_profile_tab = main_profile_tab
         self.first_profile_audio = first_profile_audio
@@ -1186,6 +1192,9 @@ class Chat(Object):
             )
 
         parsed_chat.gift_count = user.stargifts_count
+        parsed_chat.wallet_card = await types.WalletCard._parse(
+            client, getattr(user, "wallet_card", None), users=users, chats=chats
+        )
         # parsed_chat.starref_program
         parsed_chat.bot_verification = types.BotVerification._parse(
             client,

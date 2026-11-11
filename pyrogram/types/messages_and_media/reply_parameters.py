@@ -18,7 +18,7 @@
 
 from typing import List, Optional, Union
 
-from pyrogram import enums, types
+from pyrogram import enums, raw, types
 
 from ..object import Object
 
@@ -61,6 +61,12 @@ class ReplyParameters(Object):
         poll_option_id (``str``, *optional*):
             Persistent identifier of the specific poll option to be replied to.
 
+        quote_rich (``str`` | :obj:`~pyrogram.raw.base.RichText` | List of ``str`` | :obj:`~pyrogram.raw.base.RichText`, *optional*):
+            Quoted part of a rich message to be replied to, as the rich text itself.
+            Pass plain strings or raw ``Text*`` objects; strings are sent unformatted.
+            Use this to quote content of a :obj:`~pyrogram.types.RichMessage`, where
+            the plain-text *quote* substring lookup cannot apply.
+
         ephemeral_message_id (``int``, *optional*):
             Unique identifier of the ephemeral message to be replied to.
             If specified, *chat_id* or *message_id* must not be specified.
@@ -78,6 +84,7 @@ class ReplyParameters(Object):
         quote_position: Optional[int] = None,
         checklist_task_id: Optional[int] = None,
         poll_option_id: Optional[str] = None,
+        quote_rich: Optional[Union[str, "raw.base.RichText", List[Union[str, "raw.base.RichText"]]]] = None,
         ephemeral_message_id: Optional[int] = None,
     ):
         super().__init__()
@@ -91,5 +98,6 @@ class ReplyParameters(Object):
         self.quote_position = quote_position
         self.checklist_task_id = checklist_task_id
         self.poll_option_id = poll_option_id
+        self.quote_rich = quote_rich
         self.ephemeral_message_id = ephemeral_message_id
 

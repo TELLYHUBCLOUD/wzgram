@@ -219,12 +219,19 @@ from .upgraded_gift_purchase_offer import (
     UpgradedGiftPurchaseOfferRejected,
 )
 from .upgraded_gift_value_info import UpgradedGiftValueInfo
+from .user_wallet import UserWallet
 from .venue import Venue
 from .video import Video
 from .video_note import VideoNote
 from .voice import Voice
+from .wallet_card import WalletCard
+from .wallet_card_sticker import WalletCardSticker
+from .wallet_nft_item import WalletNftAttribute, WalletNftItem
 from .web_app_data import WebAppData
 from .web_page import WebPage
+from .widget import Widget
+from .widget_public_data import WidgetPublicData
+from .widget_query_type import WidgetQueryType, WidgetQueryTypeData, WidgetQueryTypeSentTransaction, WidgetQueryTypeSignData
 from .write_access_allowed import WriteAccessAllowed
 
 __all__ = [
@@ -439,5 +446,15 @@ __all__ = [
     "WebAppData",
     "WebPage",
     "WriteAccessAllowed",
+    "UserWallet",
+    "WalletCard",
+    "WalletCardSticker",
+    "WalletNftAttribute",
+    "WalletNftItem",
+    "Widget",
+    "WidgetPublicData",
+    "WidgetQueryType",
+    "WidgetQueryTypeData",
+    "WidgetQueryTypeSentTransaction",
+    "WidgetQueryTypeSignData",
 ]
-

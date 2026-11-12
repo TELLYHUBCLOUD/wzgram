@@ -38,6 +38,7 @@ from .get_gifts_for_crafting import GetGiftsForCrafting
 from .get_payment_form import GetPaymentForm
 from .get_stars_balance import GetStarsBalance
 from .get_ton_balance import GetTonBalance
+from .get_unique_gift import GetUniqueGift
 from .get_upgraded_gift import GetUpgradedGift
 from .get_upgraded_gift_value_info import GetUpgradedGiftValueInfo
 from .gift_premium_with_stars import GiftPremiumWithStars
@@ -108,7 +109,8 @@ class Payments(
     ShowGift,
     SuggestBirthday,
     TransferGift,
-    UpgradeGift
+    UpgradeGift,
+    GetUniqueGift
 ):
     pass
 

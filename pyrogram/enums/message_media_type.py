@@ -95,3 +95,6 @@ class MessageMediaType(AutoName):
 
     VIDEO_STREAM = auto()
     "Video stream media"
+
+    WIDGET = auto()
+    "HTML widget media"

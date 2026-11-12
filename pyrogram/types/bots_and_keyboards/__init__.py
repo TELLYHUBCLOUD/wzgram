@@ -63,6 +63,7 @@ from .shipping_option import ShippingOption
 from .shipping_query import ShippingQuery
 from .shipping_address import ShippingAddress
 from .web_app_info import WebAppInfo
+from .widget_query import WidgetQuery
 
 __all__ = [
     "BotAccessSettings",
@@ -111,6 +112,7 @@ __all__ = [
     "SentWebAppMessage",
     "ShippingOption",
     "ShippingQuery",
-    "ShippingAddress"
+    "ShippingAddress",
+    "WidgetQuery"
 ]
 

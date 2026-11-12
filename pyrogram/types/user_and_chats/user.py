@@ -367,6 +367,10 @@ class User(Object, Update):
             Number of saved to profile gifts for channels without `can_post_messages` administrator right, otherwise, the total number of received gifts.
             Returned only in :meth:`~pyrogram.Client.get_me`.
 
+        wallet_card (:obj:`~pyrogram.types.WalletCard`, *optional*):
+            Card of the user's TON wallet, with balances and NFT stickers.
+            Returned when a full user object is parsed.
+
         bot_verification (:obj:`~pyrogram.types.BotVerification`, *optional*):
             Information about bot verification.
             Returned only in :meth:`~pyrogram.Client.get_me`.
@@ -504,6 +508,7 @@ class User(Object, Update):
         personal_channel: Optional["types.Chat"] = None,
         personal_channel_message: Optional["types.Message"] = None,
         gift_count: Optional[int] = None,
+        wallet_card: Optional["types.WalletCard"] = None,
         bot_verification: Optional["types.BotVerification"] = None,
         main_profile_tab: Optional["enums.ProfileTab"] = None,
         first_profile_audio: Optional["types.Audio"] = None,
@@ -602,6 +607,7 @@ class User(Object, Update):
         self.personal_channel = personal_channel
         self.personal_channel_message = personal_channel_message
         self.gift_count = gift_count
+        self.wallet_card = wallet_card
         self.bot_verification = bot_verification
         self.main_profile_tab = main_profile_tab
         self.first_profile_audio = first_profile_audio
@@ -784,6 +790,9 @@ class User(Object, Update):
             )
 
         parsed_user.gift_count = user.stargifts_count
+        parsed_user.wallet_card = await types.WalletCard._parse(
+            client, getattr(user, "wallet_card", None), users=users, chats=chats
+        )
         # parsed_user.starref_program = user.starref_program
         parsed_user.bot_verification = types.BotVerification._parse(
             client,

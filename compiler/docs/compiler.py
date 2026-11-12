@@ -190,6 +190,7 @@ def pyrogram_api():
         """,
         bots="""
         Bots
+            add_bot_username
             allow_bot_send_message
             answer_callback_query
             answer_chat_join_request_query
@@ -198,6 +199,7 @@ def pyrogram_api():
             answer_pre_checkout_query
             answer_shipping_query
             answer_web_app_query
+            answer_widget_query
             can_bot_send_message
             check_bot_username
             create_bot
@@ -218,6 +220,8 @@ def pyrogram_api():
             get_managed_bot_token
             get_owned_bots
             refund_star_payment
+            remove_bot_username
+            reorder_bot_usernames
             replace_managed_bot_token
             request_callback_answer
             send_chat_join_request_web_app
@@ -232,6 +236,7 @@ def pyrogram_api():
             set_chat_menu_button
             set_game_score
             set_managed_bot_access_settings
+            toggle_bot_username
         """,
         business="""
         Business
@@ -424,6 +429,9 @@ def pyrogram_api():
             edit_message_media
             edit_message_reply_markup
             edit_message_text
+            edit_message_widget_data
+            edit_inline_widget_data
+            edit_widget_data
             fix_text_with_ai
             forward_media_group
             forward_messages
@@ -446,6 +454,7 @@ def pyrogram_api():
             get_user_personal_chat_messages
             get_web_app_link_url
             get_web_app_url
+            get_widget_public_data
             mark_checklist_tasks_as_done
             open_web_app
             read_chat_history
@@ -486,6 +495,8 @@ def pyrogram_api():
             send_video
             send_video_note
             send_voice
+            send_widget
+            send_shared_widget
             set_direct_messages_chat_topic_is_marked_as_unread
             start_bot
             stop_poll
@@ -555,6 +566,7 @@ def pyrogram_api():
             get_payment_form
             get_stars_balance
             get_ton_balance
+            get_unique_gift
             get_upgraded_gift
             get_upgraded_gift_value_info
             gift_premium_with_stars
@@ -592,6 +604,7 @@ def pyrogram_api():
             get_ton_wallet_state
             get_user_ton_wallet_addresses
             replace_ton_wallet
+            set_card_stickers
         """,
         premium="""
         Premium
@@ -702,6 +715,7 @@ def pyrogram_api():
             on_story
             on_ton_wallet_state
             on_user_status
+            on_widget_query
         """,
     )
 
@@ -935,6 +949,17 @@ def pyrogram_api():
             UpgradedGiftPurchaseOffer
             UpgradedGiftValueInfo
             WriteAccessAllowed
+            Widget
+            WidgetPublicData
+            WidgetQueryType
+            WidgetQueryTypeData
+            WidgetQueryTypeSentTransaction
+            WidgetQueryTypeSignData
+            UserWallet
+            WalletCard
+            WalletCardSticker
+            WalletNftAttribute
+            WalletNftItem
             AuctionBid
             AuctionRound
             AuctionState
@@ -1077,6 +1102,7 @@ def pyrogram_api():
             ShippingOption
             ShippingQuery
             UsersShared
+            WidgetQuery
         """,
         inline_mode="""
         Inline Mode
@@ -1492,6 +1518,10 @@ def pyrogram_api():
         shipping_query="""
         ShippingQuery
             ShippingQuery.answer
+        """,
+        widget_query="""
+        WidgetQuery
+            WidgetQuery.answer
         """,
         folder="""
         Folder

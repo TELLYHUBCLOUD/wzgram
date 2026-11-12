@@ -1532,6 +1532,8 @@ SEND_METHODS = (
     "send_sticker",
     "send_rich_message",
     "send_cached_media",
+    "send_widget",
+    "send_shared_widget",
 )
 
 
@@ -1673,6 +1675,8 @@ class TestEphemeralMessageParameters:
             client, types.EphemeralMessageParameters(receiver_user_id=7), request
         )
 
+        assert isinstance(translated.receiver_id, raw.types.InputUser)
+        assert (translated.receiver_id.user_id, translated.receiver_id.access_hash) == (7, 0)
         assert translated.media is media
         assert translated.message == "cap"
         assert translated.random_id == 5

@@ -90,7 +90,7 @@ class Connection:
         ipv6: bool,
         proxy: Optional[Proxy] = None,
         media: bool = False,
-        protocol_factory: Type[TCP] = TCPAbridged,
+        protocol_factory: Optional[Type[TCP]] = None,
         crypto_executor: Optional[ThreadPoolExecutor] = None,
         loop: Optional[asyncio.AbstractEventLoop] = None,
         server_address: Optional[str] = None,
@@ -101,16 +101,24 @@ class Connection:
         self.ipv6 = ipv6
         self.proxy = proxy
         self.media = media
-        # The proxy secret overrides whatever framing the caller asked for, so a
-        #  proxy is the only thing a caller has to pass to reach one.
-        self.protocol_factory = transport_class_for(proxy, protocol_factory)
-        self.crypto_executor = crypto_executor or get_crypto_executor()
+        # The proxy secret overrides the *default* framing, so a proxy is the
+        #  only thing a caller has to pass to reach one. An explicitly passed
+        #  factory is honored as-is: it is the test seam and the override hook,
+        #  so replacing it would dial a transport the caller never asked for.
+        if protocol_factory is None:
+            derived = transport_class_for(proxy, TCPAbridged)
 
-        if self.protocol_factory is not protocol_factory:
-            log.debug(
-                "Proxy secret asks for random padding, so %s frames this connection",
-                self.protocol_factory.__name__
-            )
+            if derived is not TCPAbridged:
+                log.debug(
+                    "Proxy secret asks for random padding, so %s frames this connection",
+                    derived.__name__
+                )
+
+            self.protocol_factory = derived
+        else:
+            self.protocol_factory = protocol_factory
+
+        self.crypto_executor = crypto_executor or get_crypto_executor()
 
         if server_address and port:
             self.address = (server_address, port)

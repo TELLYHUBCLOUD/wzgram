@@ -55,6 +55,7 @@ from pyrogram.handlers import (
     StoryHandler,
     TonWalletStateHandler,
     UserStatusHandler,
+    WidgetQueryHandler,
 )
 from pyrogram.raw.types import (
     UpdateBotBusinessConnect,
@@ -96,6 +97,9 @@ from pyrogram.raw.types import (
     UpdateUserStatus,
     UpdateUserTyping,
     UpdateWalletState,
+    UpdateBotWidgetQuery,
+    UpdateInlineBotWidgetQuery,
+    UpdateBotWidgetCopyQuery,
 )
 
 log = logging.getLogger(__name__)
@@ -132,6 +136,7 @@ class Dispatcher:
     MANAGED_BOT_UPDATES = (UpdateManagedBot,)
     GUEST_MESSAGE_UPDATES = (UpdateBotGuestChatQuery,)
     TON_WALLET_STATE_UPDATES = (UpdateWalletState,)
+    WIDGET_QUERY_UPDATES = (UpdateBotWidgetQuery, UpdateInlineBotWidgetQuery, UpdateBotWidgetCopyQuery)
 
     ENQUEUE_TIMEOUT = 5
 
@@ -335,6 +340,12 @@ class Dispatcher:
                 TonWalletStateHandler
             )
 
+        async def widget_query_parser(update, users, chats):
+            return (
+                await pyrogram.types.WidgetQuery._parse(self.client, update, users, chats),
+                WidgetQueryHandler
+            )
+
         self.update_parsers = {
             Dispatcher.NEW_MESSAGE_UPDATES: message_parser,
             Dispatcher.EDIT_MESSAGE_UPDATES: edited_message_parser,
@@ -361,6 +372,7 @@ class Dispatcher:
             Dispatcher.MANAGED_BOT_UPDATES: managed_bot_parser,
             Dispatcher.GUEST_MESSAGE_UPDATES: guest_message_parser,
             Dispatcher.TON_WALLET_STATE_UPDATES: ton_wallet_state_parser,
+            Dispatcher.WIDGET_QUERY_UPDATES: widget_query_parser,
         }
 
         self.update_parsers = {key: value for key_tuple, value in self.update_parsers.items() for key in key_tuple}

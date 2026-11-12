@@ -23,6 +23,7 @@ from .get_ton_wallet_state import GetTonWalletState
 from .get_ton_wallet_ownership_proof_challenge import GetTonWalletOwnershipProofChallenge
 from .get_user_ton_wallet_addresses import GetUserTonWalletAddresses
 from .replace_ton_wallet import ReplaceTonWallet
+from .set_card_stickers import SetCardStickers
 
 
 class Wallet(
@@ -32,6 +33,7 @@ class Wallet(
     GetTonWalletState,
     GetTonWalletOwnershipProofChallenge,
     GetUserTonWalletAddresses,
-    ReplaceTonWallet
+    ReplaceTonWallet,
+    SetCardStickers
 ):
     pass

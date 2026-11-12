@@ -848,6 +848,16 @@ ephemeral = create(ephemeral_filter)
 
 # endregion
 
+# region widget
+async def widget_filter(_, __, m: Message):
+    return bool(m.widget)
+
+
+widget = create(widget_filter)
+
+
+# endregion
+
 # region linked_channel_filter
 async def linked_channel_filter(_, __, m: Message):
     return bool(

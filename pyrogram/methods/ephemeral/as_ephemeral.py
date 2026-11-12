@@ -17,12 +17,28 @@
 #  along with Pyrogram.  If not, see <http://www.gnu.org/licenses/>.
 
 import logging
-from typing import Optional
+from typing import Optional, Union
 
 import pyrogram
 from pyrogram import raw, types
 
 log = logging.getLogger(__name__)
+
+
+async def _resolve_input_user(
+    client: "pyrogram.Client",
+    user_id: Union[int, str]
+) -> "raw.base.InputUser":
+    peer = await client.resolve_peer(user_id)
+
+    if isinstance(peer, raw.types.InputPeerSelf):
+        return raw.types.InputUserSelf()
+
+    if isinstance(peer, raw.types.InputPeerUser):
+        return raw.types.InputUser(user_id=peer.user_id, access_hash=peer.access_hash)
+
+    raise ValueError("receiver_user_id must point to a user")
+
 
 #: fields a send request can carry that ephemeral.sendMessage has no place for.
 #: Bot API allows the combination, so this warns rather than raising, but it does
@@ -78,7 +94,7 @@ async def as_ephemeral(
 
     return raw.functions.ephemeral.SendMessage(
         peer=request.peer,
-        receiver_id=await client.resolve_peer(parameters.receiver_user_id),
+        receiver_id=await _resolve_input_user(client, parameters.receiver_user_id),
         query_id=(
             int(parameters.callback_query_id)
             if parameters.callback_query_id is not None

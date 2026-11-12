@@ -17,7 +17,7 @@
 #  along with Pyrogram.  If not, see <http://www.gnu.org/licenses/>.
 
 import logging
-from typing import List, Optional, Union
+from typing import List, Union
 
 import pyrogram
 from pyrogram import raw
@@ -31,19 +31,21 @@ class ReorderBotUsernames:
     async def reorder_bot_usernames(
         self: "pyrogram.Client",
         order: List[str],
-        bot_id: Optional[Union[int, str]] = None,
+        bot_id: Union[int, str],
     ) -> bool:
         """Reorder the additional usernames of a bot.
 
-        .. include:: /_includes/usable-by/users.rst
+        Bots can pass "me" or "self" to change their own usernames.
+
+        .. include:: /_includes/usable-by/users-bots.rst
 
         Parameters:
             order (List of ``str``):
                 The usernames in their new order, without the leading "@".
 
-            bot_id (``int`` | ``str``, *optional*):
+            bot_id (``int`` | ``str``):
                 Unique identifier (int) or username (str) of the bot to change.
-                Defaults to the current bot ("me").
+                Pass "me" or "self" only from a bot account.
 
         Returns:
             ``bool``: True, on success.
@@ -51,11 +53,11 @@ class ReorderBotUsernames:
         Example:
             .. code-block:: python
 
-                await app.reorder_bot_usernames(["my_helper_ai", "my_helper_agent"])
+                await app.reorder_bot_usernames(["my_helper_ai", "my_helper_agent"], bot_id="@HelperBot")
         """
         return await self.invoke(
             raw.functions.bots.ReorderUsernames(
-                bot=await _as_input_user(self, "me" if bot_id is None else bot_id),
+                bot=await _as_input_user(self, bot_id),
                 order=[username.lstrip("@") for username in order]
             )
         )

@@ -245,35 +245,60 @@ class TestWidgetQuery:
 
 
 class TestDispatcherWiring:
-    def test_all_three_widget_query_updates_are_routed(self):
+    def test_all_three_widget_query_updates_share_the_widget_parser(self):
         dispatcher = Dispatcher(MagicMock(listeners=None))
 
-        for upd in (
-            raw.types.UpdateBotWidgetQuery,
-            raw.types.UpdateInlineBotWidgetQuery,
-            raw.types.UpdateBotWidgetCopyQuery,
-        ):
-            assert dispatcher.update_parsers[upd] is not None
+        parsers = [
+            dispatcher.update_parsers[upd]
+            for upd in (
+                raw.types.UpdateBotWidgetQuery,
+                raw.types.UpdateInlineBotWidgetQuery,
+                raw.types.UpdateBotWidgetCopyQuery,
+            )
+        ]
 
-    async def test_the_parser_yields_a_widget_query_handler(self):
+        assert None not in parsers
+        assert parsers[0] is parsers[1] is parsers[2]
+
+    async def test_each_widget_update_yields_a_widget_query_handler(self):
         dispatcher = Dispatcher(MagicMock(listeners=None))
-        parser = dispatcher.update_parsers[raw.types.UpdateBotWidgetCopyQuery]
-        users = {1: _raw_user(1, "Copier")}
-
-        parsed, handler_type = await parser(
+        users = {1: _raw_user(1, "Tapper"), 2: _raw_user(2, "Receiver")}
+        updates = [
+            raw.types.UpdateBotWidgetQuery(
+                query_id=777,
+                query_type=raw.types.WidgetQueryTypeData(),
+                user_id=1,
+                peer=raw.types.PeerUser(user_id=2),
+                msg_id=10,
+                chat_instance=12345,
+                chat_type="private",
+                data=b"{}",
+            ),
+            raw.types.UpdateInlineBotWidgetQuery(
+                query_id=888,
+                query_type=raw.types.WidgetQueryTypeData(),
+                user_id=1,
+                inline_message_id=raw.types.InputBotInlineMessageID(dc_id=2, id=99, access_hash=7),
+                chat_instance=12345,
+                chat_type="private",
+                data=b"{}",
+            ),
             raw.types.UpdateBotWidgetCopyQuery(
-                query_id=1,
+                query_id=999,
                 query_type=raw.types.WidgetQueryTypeData(),
                 user_id=1,
                 data=b"{}",
                 widget_id=2,
             ),
-            users,
-            {},
-        )
+        ]
 
-        assert isinstance(parsed, types.WidgetQuery)
-        assert handler_type is WidgetQueryHandler
+        for update in updates:
+            parsed, handler_type = await dispatcher.update_parsers[type(update)](
+                update, users, {}
+            )
+
+            assert isinstance(parsed, types.WidgetQuery)
+            assert handler_type is WidgetQueryHandler
 
     def test_the_decorator_registers_the_handler_type(self):
         @pyrogram.Client.on_widget_query(filters=None)
@@ -294,7 +319,7 @@ def _client():
         if peer_id in ("me", "self"):
             return raw.types.InputPeerSelf()
 
-        return raw.types.InputPeerUser(user_id=1, access_hash=0)
+        return raw.types.InputPeerUser(user_id=1, access_hash=77)
 
     client.resolve_peer = AsyncMock(side_effect=resolve_peer)
     return client
@@ -332,17 +357,79 @@ class TestWidgetMethods:
         assert query.media.widget_id == 123
         assert query.media.chat_data == "x"
 
+    async def test_send_widget_can_be_ephemeral(self):
+        client = _client()
+        client.invoke = AsyncMock(return_value=MagicMock(updates=[]))
+
+        await client.send_widget(
+            1, "<b>hi</b>", width=320, height=240,
+            ephemeral_message_parameters=types.EphemeralMessageParameters(
+                receiver_user_id=2,
+                callback_query_id="777",
+                replace_callback_query_message=True,
+            )
+        )
+
+        query = client.invoke.await_args.args[0]
+        assert isinstance(query, raw.functions.ephemeral.SendMessage)
+        assert isinstance(query.media, raw.types.InputMediaWidget)
+        assert query.media.html == "<b>hi</b>"
+        assert query.query_id == 777
+        assert query.anchor is True
+        assert (query.receiver_id.user_id, query.receiver_id.access_hash) == (1, 77)
+
+    async def test_send_shared_widget_can_be_ephemeral(self):
+        client = _client()
+        client.invoke = AsyncMock(return_value=MagicMock(updates=[]))
+
+        await client.send_shared_widget(
+            1, widget_id=123,
+            ephemeral_message_parameters=types.EphemeralMessageParameters(receiver_user_id=2)
+        )
+
+        query = client.invoke.await_args.args[0]
+        assert isinstance(query, raw.functions.ephemeral.SendMessage)
+        assert isinstance(query.media, raw.types.InputMediaWidgetId)
+        assert query.media.widget_id == 123
+
     async def test_edit_message_widget_data_hits_the_right_function(self):
         client = _client()
         client.invoke = AsyncMock(return_value=MagicMock(updates=[]))
 
-        await client.edit_message_widget_data(1, 10, public_data="{}", chat_data="c")
+        await client.edit_message_widget_data(
+            1, 10, public_data="{}", chat_data="c",
+            business_connection_id="business-id"
+        )
 
-        query = client.invoke.await_args.args[0]
+        call = client.invoke.await_args
+        query = call.args[0]
         assert isinstance(query, raw.functions.messages.EditMessageWidgetData)
         assert query.id == 10
         assert query.public_data == "{}"
         assert query.chat_data == "c"
+        assert call.kwargs["business_connection_id"] == "business-id"
+
+    async def test_edit_message_widget_data_accepts_the_lightweight_update(self):
+        client = _client()
+        client.invoke = AsyncMock(
+            return_value=MagicMock(
+                users=[],
+                chats=[],
+                updates=[
+                    raw.types.UpdateMessageWidgetData(
+                        peer=raw.types.PeerUser(user_id=1),
+                        msg_id=10,
+                        public_data="{}",
+                        public_data_hash=42,
+                        chat_data="c",
+                        pts=1,
+                        pts_count=1,
+                    )
+                ]
+            )
+        )
+
+        assert await client.edit_message_widget_data(1, 10, public_data="{}") is None
 
     async def test_edit_inline_widget_data_unpacks_the_inline_message_id(self):
         client = _client()
@@ -401,6 +488,7 @@ class TestWidgetMethods:
         result = await client.get_widget_public_data(1, 10, hash=5)
 
         assert result.not_modified is True
+        assert result.hash == 5
         assert result.data is None
 
     async def test_get_unique_gift_looks_up_by_name(self):
@@ -424,6 +512,38 @@ class TestWidgetMethods:
         client.invoke = fake_invoke
         await client.get_unique_gift("SignetRing-903")
 
+    async def test_set_card_stickers_preserves_all_coordinates(self):
+        client = _client()
+        client.invoke = AsyncMock(
+            return_value=raw.types.wallet.Card(
+                stickers=[], address="EQcard", balance=100
+            )
+        )
+
+        card = await client.set_card_stickers(
+            [
+                types.WalletCardSticker(
+                    x=1.0,
+                    y=2.0,
+                    width=3.0,
+                    height=4.0,
+                    rotation=5.0,
+                    radius=6.0,
+                    nft_address="EQnft"
+                )
+            ],
+            bg_nft_address="EQbackground"
+        )
+
+        query = client.invoke.await_args.args[0]
+        sticker = query.stickers[0]
+        assert isinstance(sticker, raw.types.InputWalletCardSticker)
+        assert (sticker.coordinates.x, sticker.coordinates.y) == (1.0, 2.0)
+        assert (sticker.coordinates.w, sticker.coordinates.h) == (3.0, 4.0)
+        assert (sticker.coordinates.rotation, sticker.coordinates.radius) == (5.0, 6.0)
+        assert (sticker.nft_address, query.bg_nft_address) == ("EQnft", "EQbackground")
+        assert (card.address, card.balance) == ("EQcard", 100)
+
 
 class TestBotUsernames:
     async def _run(self, fn, *args, **kwargs):
@@ -432,11 +552,11 @@ class TestBotUsernames:
         await fn(client, *args, **kwargs)
         return client.invoke.await_args.args[0]
 
-    async def test_add_bot_username_defaults_to_self(self):
+    async def test_add_bot_username_targets_self_when_asked(self):
         client = _client()
         client.invoke = AsyncMock(return_value=True)
 
-        await client.add_bot_username("helper_agent")
+        await client.add_bot_username("helper_agent", bot_id="me")
 
         query = client.invoke.await_args.args[0]
         assert isinstance(query, raw.functions.bots.AddUsername)
@@ -452,17 +572,17 @@ class TestBotUsernames:
         query = client.invoke.await_args.args[0]
         client.resolve_peer.assert_awaited_once_with("@HelperBot")
         assert isinstance(query.bot, raw.types.InputUser)
-        assert query.bot.user_id == 1
+        assert (query.bot.user_id, query.bot.access_hash) == (1, 77)
 
     async def test_remove_bot_username(self):
-        query = await self._run(pyrogram.Client.remove_bot_username, "helper_ai")
+        query = await self._run(pyrogram.Client.remove_bot_username, "helper_ai", "me")
 
         assert isinstance(query, raw.functions.bots.RemoveUsername)
         assert query.username == "helper_ai"
 
     async def test_toggle_bot_username(self):
         query = await self._run(
-            pyrogram.Client.toggle_bot_username, "@helper_ai", False
+            pyrogram.Client.toggle_bot_username, "@helper_ai", False, "me"
         )
 
         assert isinstance(query, raw.functions.bots.ToggleUsername)
@@ -470,7 +590,7 @@ class TestBotUsernames:
 
     async def test_reorder_bot_usernames(self):
         query = await self._run(
-            pyrogram.Client.reorder_bot_usernames, ["b_ai", "a_agent"]
+            pyrogram.Client.reorder_bot_usernames, ["b_ai", "a_agent"], "me"
         )
 
         assert isinstance(query, raw.functions.bots.ReorderUsernames)

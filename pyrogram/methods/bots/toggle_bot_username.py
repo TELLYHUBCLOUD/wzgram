@@ -17,7 +17,7 @@
 #  along with Pyrogram.  If not, see <http://www.gnu.org/licenses/>.
 
 import logging
-from typing import Optional, Union
+from typing import Union
 
 import pyrogram
 from pyrogram import raw
@@ -32,11 +32,13 @@ class ToggleBotUsername:
         self: "pyrogram.Client",
         username: str,
         active: bool,
-        bot_id: Optional[Union[int, str]] = None,
+        bot_id: Union[int, str],
     ) -> bool:
         """Activate or deactivate an additional username of a bot.
 
-        .. include:: /_includes/usable-by/users.rst
+        Bots can pass "me" or "self" to change their own username.
+
+        .. include:: /_includes/usable-by/users-bots.rst
 
         Parameters:
             username (``str``):
@@ -45,9 +47,9 @@ class ToggleBotUsername:
             active (``bool``):
                 Pass True to activate the username, False to deactivate it.
 
-            bot_id (``int`` | ``str``, *optional*):
+            bot_id (``int`` | ``str``):
                 Unique identifier (int) or username (str) of the bot to change.
-                Defaults to the current bot ("me").
+                Pass "me" or "self" only from a bot account.
 
         Returns:
             ``bool``: True, on success.
@@ -55,11 +57,11 @@ class ToggleBotUsername:
         Example:
             .. code-block:: python
 
-                await app.toggle_bot_username("my_helper_agent", active=False)
+                await app.toggle_bot_username("my_helper_agent", False, bot_id="@MyHelperBot")
         """
         return await self.invoke(
             raw.functions.bots.ToggleUsername(
-                bot=await _as_input_user(self, "me" if bot_id is None else bot_id),
+                bot=await _as_input_user(self, bot_id),
                 username=username.lstrip("@"),
                 active=active
             )

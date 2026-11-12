@@ -23,6 +23,8 @@ from typing import Optional, Union
 import pyrogram
 from pyrogram import raw, types, utils
 
+from ..ephemeral.as_ephemeral import as_ephemeral
+
 log = logging.getLogger(__name__)
 
 
@@ -37,7 +39,8 @@ class SendSharedWidget:
         reply_parameters: Optional["types.ReplyParameters"] = None,
         schedule_date: Optional[datetime] = None,
         protect_content: Optional[bool] = None,
-        business_connection_id: Optional[str] = None
+        business_connection_id: Optional[str] = None,
+        ephemeral_message_parameters: Optional["types.EphemeralMessageParameters"] = None
     ) -> "types.Message":
         """Send a shared widget.
 
@@ -82,6 +85,10 @@ class SendSharedWidget:
             business_connection_id (``str``, *optional*):
                 Unique identifier of the business connection on behalf of which the message will be sent.
 
+            ephemeral_message_parameters (:obj:`~pyrogram.types.EphemeralMessageParameters`, *optional*):
+                Send the shared widget as an ephemeral message, visible only to the user
+                it names and absent from the chat's history.
+
         Returns:
             :obj:`~pyrogram.types.Message`: On success, the sent widget message is returned.
 
@@ -91,23 +98,24 @@ class SendSharedWidget:
                 await app.send_shared_widget(chat_id, widget_id=widget.widget_id)
         """
         r = await self.invoke(
-            raw.functions.messages.SendMedia(
-                peer=await self.resolve_peer(chat_id),
-                media=raw.types.InputMediaWidgetId(
-                    widget_id=widget_id,
-                    chat_data=chat_data
-                ),
-                silent=disable_notification if disable_notification is not None else None,
-                reply_to=await utils.get_reply_to(
-                    self,
-                    reply_parameters,
-                    message_thread_id
-                ),
-                random_id=self.rnd_id(),
-                schedule_date=utils.datetime_to_timestamp(schedule_date),
-                noforwards=protect_content,
-                entities=None,
-                message=""
+            await as_ephemeral(self, ephemeral_message_parameters, raw.functions.messages.SendMedia(
+                    peer=await self.resolve_peer(chat_id),
+                    media=raw.types.InputMediaWidgetId(
+                        widget_id=widget_id,
+                        chat_data=chat_data
+                    ),
+                    silent=disable_notification if disable_notification is not None else None,
+                    reply_to=await utils.get_reply_to(
+                        self,
+                        reply_parameters,
+                        message_thread_id
+                    ),
+                    random_id=self.rnd_id(),
+                    schedule_date=utils.datetime_to_timestamp(schedule_date),
+                    noforwards=protect_content,
+                    entities=None,
+                    message=""
+                )
             ),
             sleep_threshold=60,
             business_connection_id=business_connection_id
@@ -116,6 +124,7 @@ class SendSharedWidget:
         for i in r.updates:
             if isinstance(i, (raw.types.UpdateNewMessage,
                               raw.types.UpdateNewChannelMessage,
+                              raw.types.UpdateNewEphemeralMessage,
                               raw.types.UpdateNewScheduledMessage,
                               raw.types.UpdateBotNewBusinessMessage)):
                 return await types.Message._parse(

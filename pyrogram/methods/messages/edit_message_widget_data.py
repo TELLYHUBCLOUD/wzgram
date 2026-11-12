@@ -31,8 +31,9 @@ class EditMessageWidgetData:
         chat_id: Union[int, str],
         message_id: int,
         public_data: Optional[str] = None,
-        chat_data: Optional[str] = None
-    ) -> "types.Message":
+        chat_data: Optional[str] = None,
+        business_connection_id: Optional[str] = None
+    ) -> Optional["types.Message"]:
         """Update the data of an HTML widget in place, keeping its dynamic UI up to date.
 
         .. include:: /_includes/usable-by/bots.rst
@@ -50,8 +51,13 @@ class EditMessageWidgetData:
             chat_data (``str``, *optional*):
                 New data of the widget specific to the chat the message belongs to.
 
+            business_connection_id (``str``, *optional*):
+                Unique identifier of the business connection on behalf of which the message was sent.
+
         Returns:
-            :obj:`~pyrogram.types.Message`: On success, the edited widget message is returned.
+            :obj:`~pyrogram.types.Message` | ``None``: On success, the edited widget
+            message is returned when Telegram includes it in the update. A lightweight
+            widget-data update contains only the changed fields and returns ``None``.
 
         Example:
             .. code-block:: python
@@ -67,7 +73,8 @@ class EditMessageWidgetData:
                 id=message_id,
                 public_data=public_data,
                 chat_data=chat_data
-            )
+            ),
+            business_connection_id=business_connection_id
         )
 
         for i in r.updates:
@@ -80,3 +87,6 @@ class EditMessageWidgetData:
                     {i.id: i for i in r.chats},
                     business_connection_id=getattr(i, "connection_id", None)
                 )
+
+            if isinstance(i, raw.types.UpdateMessageWidgetData):
+                return None

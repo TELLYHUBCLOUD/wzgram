@@ -17,7 +17,7 @@
 #  along with Pyrogram.  If not, see <http://www.gnu.org/licenses/>.
 
 import logging
-from typing import Optional, Union
+from typing import Union
 
 import pyrogram
 from pyrogram import raw
@@ -31,19 +31,21 @@ class RemoveBotUsername:
     async def remove_bot_username(
         self: "pyrogram.Client",
         username: str,
-        bot_id: Optional[Union[int, str]] = None,
+        bot_id: Union[int, str],
     ) -> bool:
         """Remove an additional username from a bot.
 
-        .. include:: /_includes/usable-by/users.rst
+        Bots can pass "me" or "self" to change their own username.
+
+        .. include:: /_includes/usable-by/users-bots.rst
 
         Parameters:
             username (``str``):
                 Username to detach, without the leading "@".
 
-            bot_id (``int`` | ``str``, *optional*):
+            bot_id (``int`` | ``str``):
                 Unique identifier (int) or username (str) of the bot to change.
-                Defaults to the current bot ("me").
+                Pass "me" or "self" only from a bot account.
 
         Returns:
             ``bool``: True, on success.
@@ -55,7 +57,7 @@ class RemoveBotUsername:
         """
         return await self.invoke(
             raw.functions.bots.RemoveUsername(
-                bot=await _as_input_user(self, "me" if bot_id is None else bot_id),
+                bot=await _as_input_user(self, bot_id),
                 username=username.lstrip("@")
             )
         )

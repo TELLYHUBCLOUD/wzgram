@@ -46,23 +46,7 @@ class SetCardStickers:
         """
         r = await self.invoke(
             raw.functions.wallet.SetCardStickers(
-                stickers=[
-                    raw.types.InputWalletCardSticker(
-                        coordinates=(
-                            sticker.coordinates._write()
-                            if hasattr(sticker.coordinates, "_write")
-                            else raw.types.MediaAreaCoordinates(
-                                x=sticker.x,
-                                y=sticker.y,
-                                w=sticker.width,
-                                h=sticker.height,
-                                rotation=sticker.rotation or 0
-                            )
-                        ),
-                        nft_address=sticker.nft_address
-                    )
-                    for sticker in stickers
-                ],
+                stickers=[sticker.write() for sticker in stickers],
                 bg_nft_address=bg_nft_address
             )
         )

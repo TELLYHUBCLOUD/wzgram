@@ -68,4 +68,4 @@ class GetWidgetPublicData:
             )
         )
 
-        return types.WidgetPublicData._parse(self, r)
+        return types.WidgetPublicData._parse(self, r, current_hash=hash)

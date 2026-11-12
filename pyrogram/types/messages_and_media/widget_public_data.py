@@ -62,11 +62,12 @@ class WidgetPublicData(Object):
     @staticmethod
     def _parse(
         client: "pyrogram.Client",
-        result: "raw.base.messages.WidgetPublicData"
+        result: "raw.base.messages.WidgetPublicData",
+        current_hash: int = 0
     ) -> "WidgetPublicData":
         if isinstance(result, raw.types.messages.WidgetPublicDataNotModified):
             return WidgetPublicData(
-                hash=0,
+                hash=current_hash,
                 period=result.period,
                 not_modified=True
             )
